@@ -2,7 +2,7 @@ lazy val root = (project in file(".")).
   settings(
     inThisBuild(List(
       organization := "com.cybergstudio.kluster",
-      scalaVersion := "2.12.1",
+      scalaVersion := "2.12.2",
       version      := Process("git rev-parse HEAD").lines.head,
       scalacOptions := Seq(
         "-deprecation",
@@ -19,8 +19,9 @@ lazy val root = (project in file(".")).
     )),
     name := "kluster",
     libraryDependencies ++= {
-      val akkaV = "2.5.1"
+      val akkaV = "2.5.3"
       Seq(
+        "com.lightbend.akka" %% "akka-management-cluster-http" % "0.3",
         "com.typesafe.akka" %% "akka-cluster" % akkaV,
         "com.typesafe.akka" %% "akka-cluster-metrics" % akkaV
       )

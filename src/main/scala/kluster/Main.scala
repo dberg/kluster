@@ -1,7 +1,7 @@
 package kluster
 
 import akka.actor.ActorSystem
-import akka.stream.ActorMaterializer
+import akka.cluster.http.management.ClusterHttpManagement
 import com.typesafe.config.ConfigFactory
 import java.net.InetAddress
 
@@ -19,9 +19,12 @@ object Main {
       .withFallback(ConfigFactory.load())
 
     implicit val system = ActorSystem("kluster", config)
-    val materializer = ActorMaterializer()
-    val ec = system.dispatcher
 
-    Kluster.createCluster(system, hostname)
+    Kluster.createCluster(system, hostname) match {
+      case Some(cluster) =>
+        ClusterHttpManagement(cluster).start()
+        ()
+      case None =>
+    }
   }
 }

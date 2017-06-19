@@ -7,7 +7,7 @@ import akka.event.Logging
 
 object Kluster {
 
-  def createCluster(implicit system: ActorSystem, hostname: String): Unit = {
+  def createCluster(implicit system: ActorSystem, hostname: String): Option[Cluster] = {
     // Create cluster programatically.
     val addr = Address("akka.tcp", system.name, "kluster1", 2550)
     if (hostname startsWith system.name) {
@@ -20,9 +20,11 @@ object Kluster {
         classOf[MemberEvent],
         classOf[UnreachableMember]
       )
+      Some(cluster)
     } else {
       val log = Logging(system, "Kluster")
       log.error("Wrong hostname. No cluster will be created.")
+      None
     }
   }
 

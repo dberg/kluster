@@ -48,6 +48,13 @@ kill_cluster() {
     docker kill `docker ps -q -f name=$network` 2> /dev/null
 }
 
+run_container() {
+    node_name=$1 # for example, kluster1
+    docker run --rm -itd \
+	   --expose=8080 --expose=2550 --expose=19999 \
+	   --network=kluster --hostname=$node_name --name=$node_name kluster
+}
+
 if [[ $kill == 1 ]]; then
     kill_cluster
     exit 0
@@ -80,10 +87,9 @@ if [[ $force == 1 || "$(docker images -q kluster 2> /dev/null)" == "" ]]; then
 fi
 
 # run cluster with 3 nodes
-docker run --rm -itd --expose=8080 --expose=2550 --network=kluster --hostname=kluster1 --name=kluster1 kluster
+run_container kluster1
 # the first seed node (kluster1) need to be started before all others.
 # give it some time to start
 sleep 30
-docker run --rm -itd --expose=8080 --expose=2550 --network=kluster --hostname=kluster2 --name=kluster2 kluster
-docker run --rm -itd --expose=8080 --expose=2550 --network=kluster --hostname=kluster3 --name=kluster3 kluster
-
+run_container kluster2
+run_container kluster3
