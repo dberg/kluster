@@ -9,7 +9,7 @@ network=kluster
 
 usage() {
     echo "
-Usage: $0 [-f] [-k]
+Usage: $0 [-f] [-k] [-a] [-r]
 
 Examples:
 
@@ -21,25 +21,44 @@ $0 -f
 
 # kill cluster
 $0 -k
+
+# add 2 nodes
+$0 -a 2
+
+# remove node kluster3
+$0 -r 3
 "
     exit 1;
 }
 
 force=0
 kill=0
-while getopts ":fkh" o; do
+add_nodes=0
+add_nodes_count=0
+remove_node=0
+remove_node_name=""
+
+while getopts ":fkhra:" o; do
     case "${o}" in
-	f)
-	    force=1
-	    ;;
-	k)
-	    kill=1
-	    ;;
-	h)
-	    usage
-	    ;;
-	*)
-	    ;;
+        f)
+            force=1
+            ;;
+        k)
+            kill=1
+            ;;
+        a)
+            add_nodes=1
+            add_nodes_count=${OPTARG}
+            ;;
+        r)
+            remove_node=1
+            remove_node_name="kluster${OPTARG}"
+            ;;
+        h)
+            usage
+            ;;
+        *)
+            ;;
     esac
 done
 
@@ -49,16 +68,16 @@ kill_cluster() {
 }
 
 run_container() {
-    node_name=$1 # for example, kluster1
+    node_name=$1 # for example: kluster1
     docker run --rm -itd \
-	   --expose=8080 --expose=2550 --expose=19999 \
-	   --network=kluster --hostname=$node_name --name=$node_name kluster
+           --expose=8080 --expose=2550 --expose=19999 \
+           --network=kluster --hostname=$node_name --name=$node_name kluster
 }
 
-if [[ $kill == 1 ]]; then
-    kill_cluster
-    exit 0
-fi
+cluster_containers=""
+set_cluster_containers() {
+    cluster_containers=`docker ps --filter "name=kluster" --format "{{.Names}}" | sort | xargs echo -n | tr '\n' ' '`
+}
 
 # assert that docker is available
 docker info > /dev/null 2>&1
@@ -74,16 +93,61 @@ if [[ $? -ne 0 ]]; then
     docker network create $network
 fi
 
+set_cluster_containers
+
+# kill cluster
+if [[ $kill == 1 ]]; then
+    kill_cluster
+    exit 0
+fi
+
+# add nodes
+regex_ints='^[0-9]+$'
+if [[ $add_nodes == 1 ]]; then
+    if ! [[ $add_nodes_count =~ $regex_ints ]]; then
+        echo "invalid number of nodes to add to the cluster."
+        exit 1
+    fi
+    if [[ -z $cluster_containers ]]; then
+        echo "cluster is not running."
+        exit 1
+    fi
+    last_node=`echo ${cluster_containers##* }`
+    base_index="${last_node/kluster/}"
+    echo "adding $add_nodes_count node(s) to the cluster"
+    for ((i=1; i<=$add_nodes_count; i++)); do
+        node_number=$(($i + $base_index))
+        node_name="kluster$node_number"
+        echo "starting $node_name"
+        run_container $node_name
+    done
+    exit 0
+fi
+
+# remove node from the cluster
+if [[ $remove_node == 1 ]]; then
+    echo "TODO"
+    exit 1;
+fi
+
+# run the cluster. default execution.
 # kill running cluster if "force" is set.
 if [[ $force == 1 && "$(docker ps -f name=kluster 2> /dev/null)" != "" ]]; then
     kill_cluster
 fi
 
-# build image if necessary.
+# build image if necessary
 if [[ $force == 1 || "$(docker images -q kluster 2> /dev/null)" == "" ]]; then
     echo "building container image"
     sbt -batch clean assembly
     docker build -t kluster --build-arg KLUSTER_VERSION=$(git rev-parse HEAD) .
+fi
+
+# check if cluster is already running
+if [[ $force == 0 && ! -z $cluster_containers ]]; then
+    echo "cluster is already running with the following nodes: $cluster_containers."
+    echo "nothing to be done."
+    exit 1;
 fi
 
 # run cluster with 3 nodes

@@ -9,7 +9,7 @@ MAINTAINER Daniel Berg <danibberg@gmail.com>
 
 # setup kluster service
 ENV KLUSTER /usr/local/kluster
-RUN apk add --update curl && rm -rf /var/cache/apk/*
+RUN apk add --update curl jq && rm -rf /var/cache/apk/*
 RUN mkdir -p ${KLUSTER}
 COPY ./container/run.sh ${KLUSTER}/
 ARG KLUSTER_VERSION
