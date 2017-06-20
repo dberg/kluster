@@ -40,3 +40,60 @@ To recompile the code and redeploy the cluster execute:
 ```bash
 ./run.sh -f
 ```
+
+You can remove a node from the cluster using the `-r` option. For example, to remove `kluster2`, run:
+
+```
+./run.sh -r 2
+```
+
+Use the `-a COUNT` option to add new nodes to the cluster. For example, to add 2
+new nodes to the cluster, run:
+
+```
+./run.sh -a 2
+```
+
+The nodes run the akka http manager api. The containers have installed curl and
+jq so it's possible to trigger the api via `docker exec`. For example:
+
+```
+docker exec -ti kluster1 curl http://localhost:19999/members | jq .
+```
+
+The response of the command above is similar to this
+
+```json
+{
+  "selfNode": "akka.tcp://kluster@kluster1:2550",
+  "leader": "akka.tcp://kluster@kluster1:2550",
+  "oldest": "akka.tcp://kluster@kluster1:2550",
+  "unreachable": [],
+  "members": [
+    {
+      "node": "akka.tcp://kluster@kluster1:2550",
+      "nodeUid": "-1569330506",
+      "status": "Up",
+      "roles": [
+        "cruncher"
+      ]
+    },
+    {
+      "node": "akka.tcp://kluster@kluster2:2550",
+      "nodeUid": "2119541425",
+      "status": "Up",
+      "roles": [
+        "cruncher"
+      ]
+    },
+    {
+      "node": "akka.tcp://kluster@kluster3:2550",
+      "nodeUid": "865465060",
+      "status": "Up",
+      "roles": [
+        "cruncher"
+      ]
+    }
+  ]
+}
+```
