@@ -38,7 +38,7 @@ add_nodes_count=0
 remove_node=0
 remove_node_name=""
 
-while getopts ":fkhra:" o; do
+while getopts ":fkhr:a:" o; do
     case "${o}" in
         f)
             force=1
@@ -79,6 +79,13 @@ set_cluster_containers() {
     cluster_containers=`docker ps --filter "name=kluster" --format "{{.Names}}" | sort | xargs echo -n | tr '\n' ' '`
 }
 
+assert_cluster_is_running() {
+    if [[ -z $cluster_containers ]]; then
+        echo "cluster is not running."
+        exit 1
+    fi
+}
+
 # assert that docker is available
 docker info > /dev/null 2>&1
 if [[ $? -ne 0 ]]; then
@@ -108,10 +115,7 @@ if [[ $add_nodes == 1 ]]; then
         echo "invalid number of nodes to add to the cluster."
         exit 1
     fi
-    if [[ -z $cluster_containers ]]; then
-        echo "cluster is not running."
-        exit 1
-    fi
+    assert_cluster_is_running
     last_node=`echo ${cluster_containers##* }`
     base_index="${last_node/kluster/}"
     echo "adding $add_nodes_count node(s) to the cluster"
@@ -126,8 +130,12 @@ fi
 
 # remove node from the cluster
 if [[ $remove_node == 1 ]]; then
-    echo "TODO"
-    exit 1;
+    assert_cluster_is_running
+    # execute commands on last node
+    echo "removing node $remove_node_name"
+    node=`echo ${cluster_containers##* }`
+    docker exec -ti $node curl -X DELETE http://localhost:19999/members/akka.tcp://kluster@${remove_node_name}:2550
+    exit 0;
 fi
 
 # run the cluster. default execution.
