@@ -4,7 +4,8 @@ Dockerized Akka cluster.
 
 This is minimal application of an akka cluster running on docker.
 
-For more information see [kluster](http://daniberg.com/2017/06/06/kluster.html).
+For more information see [kluster](http://daniberg.com/2017/06/06/kluster.html) and
+[kluster updates](http://daniberg.com/2017/06/20/kluster-updates.html).
 
 ## building and developing
 
