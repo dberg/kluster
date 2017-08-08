@@ -2,7 +2,7 @@ lazy val root = (project in file(".")).
   settings(
     inThisBuild(List(
       organization := "com.cybergstudio.kluster",
-      scalaVersion := "2.12.2",
+      scalaVersion := "2.12.3",
       version      := Process("git rev-parse HEAD").lines.head,
       scalacOptions := Seq(
         "-deprecation",

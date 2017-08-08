@@ -14,7 +14,7 @@ Usage: $0 [-f] [-k] [-a] [-r]
 Examples:
 
 # create cluster
-n$0
+$0
 
 # rebuild cluster
 $0 -f
