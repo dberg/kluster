@@ -59,7 +59,7 @@ The nodes run the akka http manager api. The containers have installed curl and
 jq so it's possible to trigger the api via `docker exec`. For example:
 
 ```
-docker exec -ti kluster1 curl http://localhost:19999/members | jq .
+docker exec -ti kluster1 curl http://localhost:8558/cluster/members | jq .
 ```
 
 The response of the command above is similar to this
@@ -73,26 +73,29 @@ The response of the command above is similar to this
   "members": [
     {
       "node": "akka.tcp://kluster@kluster1:2550",
-      "nodeUid": "-1569330506",
+      "nodeUid": "1520850065",
       "status": "Up",
       "roles": [
-        "cruncher"
+        "cruncher",
+        "dc-default"
       ]
     },
     {
       "node": "akka.tcp://kluster@kluster2:2550",
-      "nodeUid": "2119541425",
+      "nodeUid": "-1078410457",
       "status": "Up",
       "roles": [
-        "cruncher"
+        "cruncher",
+        "dc-default"
       ]
     },
     {
       "node": "akka.tcp://kluster@kluster3:2550",
-      "nodeUid": "865465060",
+      "nodeUid": "1026545477",
       "status": "Up",
       "roles": [
-        "cruncher"
+        "cruncher",
+        "dc-default"
       ]
     }
   ]

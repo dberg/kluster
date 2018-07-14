@@ -1,9 +1,11 @@
+import scala.sys.process._
+
 lazy val root = (project in file(".")).
   settings(
     inThisBuild(List(
       organization := "com.cybergstudio.kluster",
-      scalaVersion := "2.12.3",
-      version      := Process("git rev-parse HEAD").lines.head,
+      scalaVersion := "2.12.6",
+      version      := Process("git rev-parse HEAD").lineStream.head,
       scalacOptions := Seq(
         "-deprecation",
         "-encoding", "UTF-8",
@@ -19,11 +21,17 @@ lazy val root = (project in file(".")).
     )),
     name := "kluster",
     libraryDependencies ++= {
-      val akkaV = "2.5.3"
+      val akkaV = "2.5.13"
+      val akkaMngV = "0.14.0"
       Seq(
-        "com.lightbend.akka" %% "akka-management-cluster-http" % "0.3",
+        "com.typesafe.akka" %% "akka-http" % "10.1.3",
+        "com.typesafe.akka" %% "akka-stream" % akkaV,
+        "com.lightbend.akka.management" %% "akka-management" % akkaMngV,
+        "com.lightbend.akka.management" %% "akka-management-cluster-http" % akkaMngV,
         "com.typesafe.akka" %% "akka-cluster" % akkaV,
-        "com.typesafe.akka" %% "akka-cluster-metrics" % akkaV
+        "com.typesafe.akka" %% "akka-cluster-metrics" % akkaV,
+        "ch.qos.logback" % "logback-classic" % "1.2.3",
+        "com.typesafe.scala-logging" %% "scala-logging" % "3.9.0"
       )
     }
   )

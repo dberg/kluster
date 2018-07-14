@@ -46,7 +46,7 @@ object Kluster {
       }
     } else {
       val log = Logging(system, "Kluster")
-      log.error("Wrong hostname. No cluster will be created.")
+      log.error(s"Invalid hostname '$hostname'. Are you sure you're trying to run this via run.sh?")
       None
     }
   }

@@ -6,6 +6,8 @@
 # Create an akka cluster via docker using a user-defined network.
 #------------------------------------------------------------------------------
 network=kluster
+akka_management_host=localhost
+akka_management_port=8558
 
 usage() {
     echo "
@@ -70,7 +72,7 @@ kill_cluster() {
 run_container() {
     node_name=$1 # for example: kluster1
     docker run --rm -itd \
-           --expose=8080 --expose=2550 --expose=19999 \
+           --expose=8080 --expose=2550 --expose=$akka_management_port \
            --network=kluster --hostname=$node_name --name=$node_name kluster
 }
 
@@ -134,7 +136,7 @@ if [[ $remove_node == 1 ]]; then
     # execute commands on last node
     echo "removing node $remove_node_name"
     node=`echo ${cluster_containers##* }`
-    docker exec -ti $node curl -X DELETE http://localhost:19999/members/akka.tcp://kluster@${remove_node_name}:2550
+    docker exec -ti $node curl -X DELETE http://$akka_management_host:$akka_management_port/cluster/members/akka.tcp://kluster@${remove_node_name}:2550
     exit 0;
 fi
 
