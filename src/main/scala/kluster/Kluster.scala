@@ -1,8 +1,7 @@
 package kluster
 
-import akka.actor.{ActorSystem, Address, Props}
+import akka.actor.{ActorSystem, Address}
 import akka.cluster.Cluster
-import akka.cluster.ClusterEvent.{MemberEvent, UnreachableMember}
 import akka.event.Logging
 import java.net.InetAddress
 import scala.annotation.tailrec
@@ -10,12 +9,27 @@ import scala.util.Try
 
 object Kluster {
 
-  def isReachable(hostname: String): Boolean = Try[Boolean] {
-    InetAddress.getByName(hostname).isReachable(1000)
-  }.getOrElse(false)
+  /** Create the cluster programatically. */
+  def createCluster(implicit system: ActorSystem, hostname: String): Option[Cluster] = {
+    if (hostname startsWith system.name) {
+      getRunningNode(system) map { addr =>
+        val cluster = Cluster(system)
+        // The first node joins itself and the remaining nodes join the first node.
+        cluster.join(addr)
+        cluster
+      }
+    } else {
+      val log = Logging(system, "Kluster")
+      log.error(s"Invalid hostname '$hostname'. Are you sure you're trying to run this via run.sh?")
+      None
+    }
+  }
 
+  /** Get the running node with the lowest index. The nodes are created following
+    * the pattern kluster{INDEX} where INDEX is a 1 based auto-increment
+    * integer. */
   @tailrec
-  def getRunningNode(system: ActorSystem, nodeNumber: Int = 1): Option[Address] = {
+  private def getRunningNode(system: ActorSystem, nodeNumber: Int = 1): Option[Address] = {
     if (nodeNumber < 1 || nodeNumber > 1000) {
       None
     } else {
@@ -29,26 +43,7 @@ object Kluster {
     }
   }
 
-  // Create cluster programatically.
-  def createCluster(implicit system: ActorSystem, hostname: String): Option[Cluster] = {
-    if (hostname startsWith system.name) {
-      getRunningNode(system) map { addr =>
-        val cluster = Cluster(system)
-        // The first node joins itself and the remaining nodes join the first node.
-        cluster.join(addr)
-        // Subscribe to the cluster events.
-        cluster.subscribe(
-          system.actorOf(Props[KlusterObserver], s"Observer:$hostname"),
-          classOf[MemberEvent],
-          classOf[UnreachableMember]
-        )
-        cluster
-      }
-    } else {
-      val log = Logging(system, "Kluster")
-      log.error(s"Invalid hostname '$hostname'. Are you sure you're trying to run this via run.sh?")
-      None
-    }
-  }
-
+  private def isReachable(hostname: String): Boolean = Try[Boolean] {
+    InetAddress.getByName(hostname).isReachable(1000)
+  }.getOrElse(false)
 }

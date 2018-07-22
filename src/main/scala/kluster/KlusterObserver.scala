@@ -1,8 +1,9 @@
 package kluster
 
-import akka.actor.Actor
-import akka.cluster.ClusterEvent.{ CurrentClusterState, MemberExited, MemberJoined, MemberLeft, MemberRemoved, MemberUp, MemberWeaklyUp, ReachableMember, UnreachableMember }
-import akka.cluster.{ Member, MemberStatus }
+import akka.actor.{Actor, Props}
+import akka.cluster.Cluster
+import akka.cluster.ClusterEvent._
+import akka.cluster.{Member, MemberStatus}
 import akka.event.Logging
 
 class KlusterObserver extends Actor {
@@ -30,6 +31,18 @@ class KlusterObserver extends Actor {
       log.info(s"OBSERVER member left $member")
     case msg =>
       log.info(s"OBSERVER got a weird message $msg")
+  }
+}
+
+object KlusterObserver {
+
+  /** Subscribe to the cluster events. */
+  def setup(cluster: Cluster, hostname: String): Unit = {
+    cluster.subscribe(
+      cluster.system.actorOf(Props[KlusterObserver], s"Observer:$hostname"),
+      classOf[MemberEvent],
+      classOf[UnreachableMember]
+    )
   }
 
 }

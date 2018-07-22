@@ -30,6 +30,7 @@ object Main {
 
     Kluster.createCluster(system, hostname) match {
       case Some(cluster) =>
+        KlusterObserver.setup(cluster, hostname)
         AkkaManagement(system).start()
         val route = getAkkaHttpManagementRoute(system, hostname, port)
         Http().bindAndHandle(route, hostname, port)
@@ -39,7 +40,7 @@ object Main {
     }
   }
 
-  // The hostname is set in the docker run command.
+  // The hostname is set in the docker run command: kluster{INDEX}.
   private def getHostname(): String = {
     val inetAddr = InetAddress.getLocalHost()
     inetAddr.getHostName()
