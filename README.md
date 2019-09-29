@@ -66,38 +66,42 @@ The response of the command above is similar to this
 
 ```json
 {
-  "selfNode": "akka.tcp://kluster@kluster1:2550",
   "leader": "akka.tcp://kluster@kluster1:2550",
-  "oldest": "akka.tcp://kluster@kluster1:2550",
-  "unreachable": [],
   "members": [
     {
       "node": "akka.tcp://kluster@kluster1:2550",
-      "nodeUid": "1520850065",
-      "status": "Up",
+      "nodeUid": "728916369",
       "roles": [
         "cruncher",
         "dc-default"
-      ]
+      ],
+      "status": "Up"
     },
     {
       "node": "akka.tcp://kluster@kluster2:2550",
-      "nodeUid": "-1078410457",
-      "status": "Up",
+      "nodeUid": "-435323710",
       "roles": [
         "cruncher",
         "dc-default"
-      ]
+      ],
+      "status": "Up"
     },
     {
       "node": "akka.tcp://kluster@kluster3:2550",
-      "nodeUid": "1026545477",
-      "status": "Up",
+      "nodeUid": "162020309",
       "roles": [
         "cruncher",
         "dc-default"
-      ]
+      ],
+      "status": "Up"
     }
-  ]
+  ],
+  "oldest": "akka.tcp://kluster@kluster1:2550",
+  "oldestPerRole": {
+    "cruncher": "akka.tcp://kluster@kluster1:2550",
+    "dc-default": "akka.tcp://kluster@kluster1:2550"
+  },
+  "selfNode": "akka.tcp://kluster@kluster1:2550",
+  "unreachable": []
 }
 ```
