@@ -4,7 +4,7 @@ lazy val root = (project in file(".")).
   settings(
     inThisBuild(List(
       organization := "com.cybergstudio.kluster",
-      scalaVersion := "2.13.1",
+      scalaVersion := "2.13.2",
       version      := Process("git rev-parse HEAD").lineStream.head,
       scalacOptions := Seq(
         "-deprecation",
@@ -21,10 +21,10 @@ lazy val root = (project in file(".")).
     )),
     name := "kluster",
     libraryDependencies ++= {
-      val akkaV = "2.5.25"
-      val akkaMngV = "1.0.3"
+      val akkaV = "2.6.5"
+      val akkaMngV = "1.0.7"
       Seq(
-        "com.typesafe.akka" %% "akka-http" % "10.1.10",
+        "com.typesafe.akka" %% "akka-http" % "10.1.12",
         "com.typesafe.akka" %% "akka-stream" % akkaV,
         "com.lightbend.akka.management" %% "akka-management" % akkaMngV,
         "com.lightbend.akka.management" %% "akka-management-cluster-http" % akkaMngV,

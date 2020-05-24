@@ -7,7 +7,6 @@ import java.net.InetAddress
 
 import akka.http.scaladsl.Http
 import akka.management.cluster.scaladsl.ClusterHttpManagementRoutes
-import akka.stream.ActorMaterializer
 import com.typesafe.scalalogging.Logger
 
 object Main {
@@ -23,7 +22,6 @@ object Main {
       .withFallback(ConfigFactory.load())
 
     implicit val system: ActorSystem = ActorSystem("kluster", config)
-    implicit val materializer: ActorMaterializer = ActorMaterializer()
 
     Kluster.createCluster(system, hostname) match {
       case Some(cluster) =>
